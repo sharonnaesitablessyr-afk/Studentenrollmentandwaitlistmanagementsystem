@@ -1,0 +1,79 @@
+
+ 
+#include <stdio.h> #include <stdlib.h> #include <string.h>
+ 
+#define MAX_ENROLL 3
+ 
+ 
+typedef struct { int id;
+char name[50];
+} Student;
+ 
+ 
+typedef struct Node { Student s;
+struct Node* next;
+} Node;
+ 
+ 
+Student enrolled[MAX_ENROLL]; int count = 0;
+Node* waitHead = NULL, *waitTail = NULL;
+ 
+ 
+// Enroll a student or add to waitlist void enroll(int id, char name[]) {
+Student s = { id, "" }; strcpy(s.name, name);
+ 
+if (count < MAX_ENROLL) { enrolled[count++] = s; printf("%s enrolled\n", name);
+} else {
+Node* newNode = (Node*)malloc(sizeof(Node)); newNode->s = s;
+
+ 
+newNode->next = NULL; if (!waitHead)
+waitHead = waitTail = newNode; else {
+waitTail->next = newNode; waitTail = newNode;
+}
+printf("Class full. %s waitlisted\n", name);
+}
+}
+ 
+ 
+// Drop student by ID and move one from waitlist void drop(int id) {
+for (int i = 0; i < count; i++) { if (enrolled[i].id == id) {
+printf("%s dropped\n", enrolled[i].name); for (int j = i; j < count - 1; j++)
+enrolled[j] = enrolled[j + 1]; count--;
+ 
+if (waitHead) {
+enrolled[count++] = waitHead->s; Node* temp = waitHead; waitHead = waitHead->next;
+if (!waitHead) waitTail = NULL; free(temp);
+printf("Moved from waitlist to enrolled\n");
+}
+return;
+}
+}
+printf("Student ID %d not found\n", id);
+}
+ 
+ 
+// Show enrolled students void showEnrolled() {
+printf("\nEnrolled:\n");
+for (int i = 0; i < count; i++)
+printf("%d. %s\n", enrolled[i].id, enrolled[i].name); if (count == 0) printf("None\n");
+}
+ 
+ 
+// Show waitlisted students void showWaitlist() {
+printf("\nWaitlist:\n"); if (!waitHead) {
+printf("None\n"); return;
+}
+Node* t = waitHead; while (t) {
+printf("%d. %s\n", t->s.id, t->s.name); t = t->next;
+}
+}
+ 
+ 
+int main() { enroll(1, "Alice");
+enroll(2, "Bob"); enroll(3, "Charlie"); enroll(4, "Diana");
+ 
+showEnrolled(); showWaitlist();
+ 
+drop(2); showEnrolled();
+
